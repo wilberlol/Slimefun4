@@ -33,7 +33,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class TapeMeasure extends SimpleSlimefunItem<ItemUseHandler> implements NotPlaceable {
 
     private final NamespacedKey key = new NamespacedKey(Slimefun.instance(), "anchor");
-    private final DecimalFormat format = new DecimalFormat("##.###");
+    private final ThreadLocal<DecimalFormat> format = ThreadLocal.withInitial(() -> new DecimalFormat("##.###"));
 
     @ParametersAreNonnullByDefault
     public TapeMeasure(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
@@ -82,7 +82,7 @@ public class TapeMeasure extends SimpleSlimefunItem<ItemUseHandler> implements N
 
         if (distance.isPresent()) {
             SoundEffect.TAPE_MEASURE_MEASURE_SOUND.playAt(block);
-            String label = format.format(distance.getAsDouble());
+            String label = format.get().format(distance.getAsDouble());
             Slimefun.getLocalization()
                     .sendMessage(p, "messages.tape-measure.distance", msg -> msg.replace("%distance%", label));
         }

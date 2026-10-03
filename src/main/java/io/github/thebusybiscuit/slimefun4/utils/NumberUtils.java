@@ -27,8 +27,13 @@ public final class NumberUtils {
      * This is our {@link DecimalFormat} for decimal values.
      * This instance is not thread-safe!
      */
-    private static final DecimalFormat DECIMAL_FORMAT =
-            new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT));
+    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT =
+            ThreadLocal.withInitial(() -> new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT)));
+
+    /** DecimalFormat is not thread-safe: use one instance per thread (fg-formatfix). */
+    private static String formatDecimal(double value) {
+        return DECIMAL_FORMAT.get().format(value);
+    }
 
     /**
      * We do not want any instance of this to be created.
@@ -58,22 +63,22 @@ public final class NumberUtils {
 
         if (value < 1000.0) {
             // Below 1K
-            return DECIMAL_FORMAT.format(value);
+            return formatDecimal(value);
         } else if (value < 1000000.0) {
             // Thousands
-            return DECIMAL_FORMAT.format(value / 1000.0) + 'K';
+            return formatDecimal(value / 1000.0) + 'K';
         } else if (value < 1000000000.0) {
             // Million
-            return DECIMAL_FORMAT.format(value / 1000000.0) + 'M';
+            return formatDecimal(value / 1000000.0) + 'M';
         } else if (value < 1000000000000.0) {
             // Billion
-            return DECIMAL_FORMAT.format(value / 1000000000.0) + 'B';
+            return formatDecimal(value / 1000000000.0) + 'B';
         } else if (value < 1000000000000000.0) {
             // Trillion
-            return DECIMAL_FORMAT.format(value / 1000000000000.0) + 'T';
+            return formatDecimal(value / 1000000000000.0) + 'T';
         } else {
             // Quadrillion
-            return DECIMAL_FORMAT.format(value / 1000000000000000.0) + 'Q';
+            return formatDecimal(value / 1000000000000000.0) + 'Q';
         }
     }
 
@@ -218,7 +223,7 @@ public final class NumberUtils {
     }
 
     public static @Nonnull String roundDecimalNumber(double number) {
-        return DECIMAL_FORMAT.format(number);
+        return formatDecimal(number);
     }
 
     public static double reparseDouble(double number) {
