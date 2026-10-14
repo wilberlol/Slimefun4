@@ -39,10 +39,7 @@ public abstract class BlockTicker implements ItemHandler {
 
     @Override
     public Optional<IncompatibleItemHandlerException> validate(SlimefunItem item) {
-        if (!item.getItem().getType().isBlock()) {
-            return Optional.of(new IncompatibleItemHandlerException(
-                    "Only Materials that are blocks can have a BlockTicker.", item, this));
-        }
+        // fg: 不再要求材質必須是方塊（FinalTECH 的 Justifiability 是鐵粒）；非方塊物品只是不會 tick，不該讓註冊失敗
 
         if (item instanceof NotPlaceable) {
             return Optional.of(new IncompatibleItemHandlerException(
